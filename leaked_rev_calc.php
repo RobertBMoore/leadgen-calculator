@@ -2,7 +2,7 @@
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    //check if its an ajax request, exit if not
+    // Check if its an ajax request, exit if not
     if(!isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
 
         //exit script outputting json data
@@ -17,53 +17,93 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 
-    //check $_POST vars are set, exit if any missing
+    // Check $_POST vars are set, exit if any missing
     if (!isset($_POST["orders-per-month"]) || !isset($_POST["revenue-per-month"]) || !isset($_POST["email"])) {
         $output = json_encode(array('type' => 'error', 'text' => 'Input fields are empty!'));
         die($output);
     }
 
-    //Sanitize input data using PHP filter_var().
+    // Sanitize input data using PHP filter_var().
     $orderpermonth     = filter_var(trim($_POST["orders-per-month"]));
     $revpermonth       = filter_var(trim($_POST["revenue-per-month"]));
     $email             = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL));
+
     $lowendpercentage  = 0.15;
     $highendpercentage = 0.40;
+
     $leakedrevlowend   = $revpermonth * $lowendpercentage;
     $leakedrevhighend  = $revpermonth * $highendpercentage;
 
-    // Get From GETresponse API 32 characters
+
+    // Your Valid Email e.g. phoenix@phoenixpeth.com
+    $emailmmm          = $email;
+    // Your Name e.g. Raju Harry
+    $getfullname       = 'Friend';
+
+
+    // Get From GetResponse API 32 characters
     $apikeyfnm         = 'cb779d1f701ad30f05a28b5f6715b1f3';
-    $emailmmm          = $email; // Your Valid Email e.g. phoenix@phoenixpeth.com
-    $getfullname       = 'Friend'; // Your Name e.g. Raju Harry
-    /*$mobilecode      = '+xx'; // Your Country code e.g. +91
-    $mobile            = 'xxxxxxxxxx'; // Your 10 digit mobile code e.g. 9999999999*/
+
+    // GetResponse ADD Contacts API URL
     $addcontacturl     = 'https://api.getresponse.com/v3/contacts/';
+
+    // GetResponse GET Contact API URL
     $getcontacturl     = 'https://api.getresponse.com/v3/contacts?query[email]='.$emailmmm;
 
-    $data              = array (
-    'name' => $getfullname,
-        'email' => $emailmmm,
+
+    // Add Contact
+    $contactData       = array (
+        // Full Name
+        'name' => $getfullname,
+
+        'email'      => $emailmmm,
         'dayOfCycle' => 0,
+
         // Your Valid Email e.g. ThwHa
-        'campaign' => array('campaignId'=>'6fK5H'),
-        // $_SERVER['REMOTE_ADDR']
-        'ipAddress'=>  $_SERVER['REMOTE_ADDR'],
+        'campaign'   => array('campaignId'=>'6fK5H'),
+
+        // IP Address
+        'ipAddress'  => $_SERVER['REMOTE_ADDR'],
     );
-    $data_string       = json_encode($data);
 
+    // Encode array into JSON
+    $jsonContactData  = json_encode($contactData);
 
-    $ch                = curl_init($addcontacturl);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    // Initialize a cURL session
+    $curl                = curl_init($addcontacturl);
+
+    // Set options for a cURL transfer
+
+    // Method type
+    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+
+    // Post fields
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $jsonContactData);
+
+    // Return response instead of printing.
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+    // Set HTTP Headers
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
         'Content-Type: application/json',
+        'Accept: application/json',
         'X-Auth-Token: api-key '.$apikeyfnm,
     ));
 
-    // Print this If you want to verfify
-    $result            = curl_exec($ch);
+    // Perform a cURL session (send request)
+    $addContactResult  = curl_exec($curl);
+
+    curl_close($curl);
+
+    echo "<pre>".$addContactResult."</pre>";
+
+
+
+
+
+
+
+
     $chmmn             = curl_init($getcontacturl);
     curl_setopt($chmmn, CURLOPT_CUSTOMREQUEST, "GET");
     curl_setopt($chmmn, CURLOPT_RETURNTRANSFER, true);
@@ -72,9 +112,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         'X-Auth-Token: api-key '.$apikeyfnm,
     ));
 
-
-
     $resultmn           = curl_exec($chmmn);
+
+
     $resultmn           = array_shift(json_decode($resultmn,true)); // Print this If you want to verfify
     $contactId          = trim($resultmn['contactId']);
     $customfld1         = $orderpermonth;
