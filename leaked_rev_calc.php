@@ -4,7 +4,6 @@ class getResponse {
 
     private $addContactResult;
 
-
     private $curl;
     private $curlError;
     private $curlErrorMessage;
@@ -157,7 +156,7 @@ class getResponse {
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Check if its an ajax request, exit if not
-    if(!isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+    if(!isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
 
         //exit script outputting json data
         $output = json_encode(
