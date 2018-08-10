@@ -1,5 +1,9 @@
 <?php
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 class getResponse {
 
     private $addContactResult;
@@ -36,7 +40,7 @@ class getResponse {
     // GetResponse ADD Contacts API URL
     private $addContactUrl     = 'https://api.getresponse.com/v3/contacts/';
     // GetResponse GET Contact API URL
-    private $getContactUrl     = 'https://api.getresponse.com/v3/contact
+    private $getContactUrl     = 'https://api.getresponse.com/v3/contact';
     // GetResponse Campaign ID
     private $campaignId        = '6fK5H';
 
@@ -46,7 +50,7 @@ class getResponse {
     function __constructor() {
 
         // Set Email Address
-        $this->emailAddress   = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL));
+        $this->emailAddress   = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
         // Set Orders Per Month
         $this->ordersPerMonth = filter_var(trim($_POST["orders-per-month"]));
         // Set Monthly Revenue
