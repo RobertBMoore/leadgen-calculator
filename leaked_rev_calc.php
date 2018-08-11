@@ -1,53 +1,31 @@
 <?php
 
+// Remove in production
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-class getResponse {
 
-    private $addContactResult;
+class LeakedRevenue extends GetResponse {
 
-    private $curl;
-    private $curlError;
-    private $curlErrorMessage;
-
-    private $jsonContactData;
-
-    // Lowend Percentage
-    private $lowPercentage     = 0.15;
-    // Highend Percentage
-    private $highPercentage    = 0.40;
+    // Percentage
+    private $percentage       = ['low' => 0.15, 'high' => 0.40];
 
     // Leaked Revenue Lowend
-    public $leakedRevenueLowend;
-    // Leaked Revenue Highend
-    public $leakedRevenueHighend;
-
-    private $orderPerMonth;
-
-
-    private $addContactData;
+    private $leakedRevenue    = [];
 
     // Email Address
     private $emailAddress;
-    // Full Name
-    private $fullName = 'friend';
+
+    // Orders Per Month
+    private $ordersPerMonth;
+
+    // Monthly Revenue
+    private $monthlyRevenue;
 
 
-    // GetResponse API Key
-    private $getResponseApiKey = 'cb779d1f701ad30f05a28b5f6715b1f3';
-    // GetResponse ADD Contacts API URL
-    private $addContactUrl     = 'https://api.getresponse.com/v3/contacts/';
-    // GetResponse GET Contact API URL
-    private $getContactUrl     = 'https://api.getresponse.com/v3/contact';
-    // GetResponse Campaign ID
-    private $campaignId        = '6fK5H';
-
-
-
-    // Sanitize input data using PHP filter_var().
-    function __constructor() {
+     // Sanitize input data using PHP filter_var().
+    function __construct() {
 
         // Set Email Address
         $this->emailAddress   = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
@@ -59,19 +37,12 @@ class getResponse {
         // Get Leaked Revenue
         $this->getLeakedRevenue();
 
-    }
 
-    function getLeakedRevenue() {
-       $this->leakedRevenueLowend  = $this->monthlyRevenue * $this->lowPercentage;
-       $this->leakedRevenueHighend = $this->monthlyRevenue * $this->highPercentage;
-    }
-
-    function addContact() {
-
-        $this->addContactData       = array (
+        // Contact Data
+        $data   = array (
 
             // Full Name
-            'name'              => $this->fullName,
+            'name'              => 'Friend',
 
             // Email of the contact (must be unique per campaign)
             'email'             => $this->emailAddress,
@@ -80,82 +51,172 @@ class getResponse {
             'dayOfCycle'        => 0,
 
             // Target campaign resource that this contact should be added to.
-            'campaign'          => array('campaignId'=>$this->campaignId),
+            'campaign'          => array('campaignId' => '6fK5H'),
 
-            // Collection of customFieldValues that should be assign to contact
+             // IP address of a contact (IPv4 or IPv6)
+            'ipAddress'         => $_SERVER['REMOTE_ADDR'],
+
+            // Collection of customFieldValues to be assigned to contact
             'customFieldValues' => array(
 
                 // Monthly Revenue
-                array('customFieldId' => 'revenue_per_month', 'value' => $this->monthlyRevenue),
+                array('customFieldId' => 'S5UH9', 'value' => array($this->monthlyRevenue)),
 
                 // Order Per Month
-                array('customFieldId' => 'order_per_month', 'value' => $this->ordersPerMonth),
+                array('customFieldId' => 'S5UvR', 'value' => array($this->ordersPerMonth)),
 
-                // Leaked Revenue Lowend
-                array('customFieldId' => 'leaked_revenue_lowend', 'value' => $this->leakedRevenueLowend),
+                // Store Leaked Revenue Low-end
+                array('customFieldId' => 'Sid1x', 'value' => array($this->leakedRevenue['low'])),
 
-                // Leaked Revenue Highend
-                array('customFieldId' => 'leaked_revenue_highend', 'value' => $this->leakedRevenueHighend)
-            ),
-
-            // IP address of a contact (IPv4 or IPv6)
-            'ipAddress'         => $_SERVER['REMOTE_ADDR']
-
+                // Store Leaked Revenue High-end
+                array('customFieldId' => 'Uyq99', 'value' => array($this->leakedRevenue['high']))
+            )
         );
 
+        parent::addContact($data);
+
+
+    }
+
+    /**
+     * Calculate Leaked Revenue
+     */
+    function getLeakedRevenue() {
+       $this->leakedRevenue['low']  = $this->monthlyRevenue * $this->percentage['low'];
+       $this->leakedRevenue['high'] = $this->monthlyRevenue * $this->percentage['high'];
+    }
+
+}
+
+
+
+class GetResponse {
+
+
+    // GetResponse API Key
+    private $apiKey = 'cb779d1f701ad30f05a28b5f6715b1f3';
+    private $apiUrl = 'https://api.getresponse.com/v3';
+
+
+    /**
+     * Get Custom Fields
+     */
+    function getCustomFields() {
+
+        // Get cURL resource
+        $curl    = curl_init();
+
+        // cURL requrest options
+        $options = array(
+            // Allow curl_exec to return result
+            CURLOPT_RETURNTRANSFER => true,
+            // URL to cURL
+            CURLOPT_URL            => $this->apiUrl.'/custom-fields/?fields=name&sort[name]=desc&page=4&perPage=30',
+            // Set Method
+            CURLOPT_CUSTOMREQUEST  => 'GET',
+            // Set Headers
+            CURLOPT_HTTPHEADER     => array(
+                'Content-Type: application/json',
+                'Accept: application/json',
+                'X-Auth-Token: api-key '.$this->apiKey,
+            )
+        );
+
+        // Set some options
+        curl_setopt_array($curl, $options);
+
+        // Send the request & save response to $resp
+        $response = curl_exec($curl);
+
+        // Close request to clear up some resources
+        curl_close($curl);
+
+        echo $response;
+
+    }
+
+
+    /**
+     * Add Contact to List
+     * 
+     * @param array $data 
+     */
+    function addContact($data) {
+
+        //todo check $data
+
         // Encode array into JSON
-        $this->jsonContactData  = json_encode($this->addContactData);
+        $jsonContactData  = json_encode($data);
 
         // Initialize a cURL session
-        $this->curl             = curl_init($this->$addContactUrl);
+        $curl             = curl_init();
 
+        // POST options
+        $options          = array( 
+            // URL
+            CURLOPT_URL            => $this->apiUrl.'/contacts',
+            // Method type
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            // Post fields
+            CURLOPT_POSTFIELDS     => $jsonContactData,
+            // Return response instead of printing.
+            CURLOPT_RETURNTRANSFER => true,
+            // Set HTTP Headers
+            CURLOPT_HTTPHEADER     => array(
+                'Content-Type: application/json',
+                'Accept: application/json',
+                'X-Auth-Token: api-key '.$this->apiKey,
+            )
+        );
 
-        // Method type
-        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "POST");
+        // Set some options
+        curl_setopt_array($curl, $options);
 
-        // Post fields
-        curl_setopt($this->curl, CURLOPT_POSTFIELDS, $jsonContactData);
-
-        // Return response instead of printing.
-        curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-
-        // Set HTTP Headers
-        curl_setopt($this->curl, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',
-            'Accept: application/json',
-            'X-Auth-Token: api-key '.$this->getResponseApiKey,
-        ));
 
         // Perform a cURL session (send request)
-        $this->addContactResult  = curl_exec($this->curl);
-
+        $response = curl_exec($curl);
 
         // Handle Curl Errors
-        $this->handleCurlError();
+        $this->handleCurlError($curl);
 
+        // Get Response Code
+        echo curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        echo $response;
 
         // Close the handle
-        curl_close($this->curl);
+        curl_close($curl);
 
     }
 
+    /**
+     * Handle cURL Errors
+     * 
+     * @param array $curl Returns a cURL handle on success, FALSE on errors.
+     */
+    function handleCurlError($curl) {
 
-    function handleCurlError() {
-        // Return the last error number
-        if($this->curlError = curl_errno($this->addContactResult)) {
+        //todo check $curl
+
+        // Return the last error number or 0 if none found
+        if($curlError = curl_errno($curl)) {
             // Return string describing the given error code
-            $curlErrorMessage = curl_strerror($this->curlError);
-            echo "cURL error ({$this->curlError}):\n {$this->curlErrorMessage}";
+            $curlErrorMessage = curl_strerror($curlError);
+            // Print Error Message
+            echo "cURL error ({$curlError}):\n {$curlErrorMessage}";
         }
-    }
 
-
-    function showResult() {
-        echo "<pre>".$this->addContactResult."</pre>";
     }
 
 
 }
+
+
+
+
+
+
+
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -164,10 +225,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         //exit script outputting json data
         $output = json_encode(
-                array(
-                    'type' => 'error',
-                    'text' => 'Request must come from Ajax'
-        ));
+            array(
+                'type' => 'error',
+                'text' => 'Request must come from Ajax'
+            )
+        );
 
         die($output);
     }
@@ -178,7 +240,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         die($output);
     }
 
-    new getResponse();
+    new LeakedRevenue();
 
 }
 
