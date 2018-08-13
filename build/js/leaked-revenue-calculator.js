@@ -144,7 +144,7 @@ var leakedRevenueForm = {
 						$('.leaked-optin__email-field').css({'display':'block'});
 						$('.leaked-optin__loading-icon').fadeOut(0);
 						$('.leaked-optin__form').fadeIn(200)
-					}, 1200);
+					}, 200);
 				});
 
 
