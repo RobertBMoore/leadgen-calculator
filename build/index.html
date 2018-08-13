@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Leaked Revenue Generator</title>
+    <link rel="stylesheet" href="css/index.css">
+  </head>
+  <body>
+  	<h2 class="leaked-optin__h2">How much Revenue Is Your Shopify Store Leaking Every Month?</h2>
+
+  	<div class="leaked-optin">
+
+  		<img src="https://martjackassests.azureedge.net/css/themes/mjt02012505/images/main/show_loader.gif" alt="loading icon" class="leaked-optin__loading-icon"/>
+
+  		<form class="leaked-optin__form">
+
+  			<span class="leaked-optin__error-message"></span>
+
+  			<div class="leaked-optin__fields">
+	  			<label class="leaked-optin__label">
+	            	Orders Per Month
+	            </label>
+	            <span class="leaked-optin__span">
+	            	<small class="leaked-optin__small">#</small>
+	            	<input type="text" placeholder="120" maxlength="7" class="leaked-optin__field" name="leaked_optin[orders_per_month]">
+	            </span>
+
+	            <label class="leaked-optin__label">
+	            	Monthly Revenue
+	            </label>
+	            <span class="leaked-optin__span">
+	            	<small class="leaked-optin__small">$</small>
+	            	<input type="text" placeholder="120" maxlength="7" class="leaked-optin__field" name="leaked_optin[monthly_revenue]">
+	            </span>
+	        </div>
+
+            <div class="leaked-optin__email-field">
+            	<h3>What's your Email? We will send you your results.</h3>
+	            <label class="leaked-optin__label">
+	            	Email
+	            </label>
+	            <span class="leaked-optin__span">
+	            	<input type="text" maxlength="255" class="leaked-optin__field" name="leaked_optin[email]">
+	            </span>
+        	</div>
+
+  			<input type="button" class="leaked-optin__next" value="How Much Am I Missing Out On?" />
+  			<input type="button" class="leaked-optin__submit" value="Click to See How Much Revenue Is Leaking From Your Store" />
+  		</form>
+
+  	</div>
+  	
+  	<!-- Load in JS -->
+  	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="js/leaked-revenue-calculator.js"></script>
+  </body>
+</html>
